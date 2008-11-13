@@ -32,6 +32,14 @@ class RemoteMerchantESolutionTest < Test::Unit::TestCase
     assert_equal 'This transaction has been approved', response.message
 	end
 
+	def test_purchase_with_store
+		assert response = @gateway.purchase(@amount, @credit_card, @options.merge(:store => true))
+		assert_success response[0]
+		assert_success response[1]
+    assert_equal 'This transaction has been approved', response[0].message
+		assert_equal 'This transaction has been approved', response[1].message
+	end
+
 	def test_unsuccessful_purchase
 		assert response = @gateway.purchase(@amount, @declined_card, @options)
 		assert_failure response

@@ -28,6 +28,12 @@ class MerchantESolutionsTest < Test::Unit::TestCase
     assert response.test?
   end
 
+	def test_purchase_with_store
+		@gateway.expects(:purchase).returns(successful_purchase_store_response)
+    assert response = @gateway.purchase(@amount, @credit_card, @options.merge({:store => true}))
+    assert_instance_of Array, response
+	end
+
   def test_unsuccessful_purchase
     @gateway.expects(:ssl_post).returns(failed_purchase_response)
     assert response = @gateway.purchase(@amount, @credit_card, @options)
@@ -136,6 +142,11 @@ class MerchantESolutionsTest < Test::Unit::TestCase
 
   def successful_purchase_response
 		'transaction_id=5547cc97dae23ea6ad1a4abd33445c91&error_code=000&auth_response_text=Exact Match&auth_code=12345A'
+  end
+
+	def successful_purchase_store_response
+		['transaction_id=5547cc97dae23ea6ad1a4abd33445c91&error_code=000&auth_response_text=Exact Match&auth_code=12345A',
+		 'transaction_id=ae641b57b19b3bb89faab44191479872&error_code=000&auth_response_text=Card Data Stored']
   end
 
 	def successful_authorization_response
