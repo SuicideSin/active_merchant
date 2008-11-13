@@ -31,12 +31,24 @@ module ActiveMerchant #:nodoc:
 				commit('P', money, post)
 			end
 
+			# returns a single ActiveMerchant::Billing::Response object unless options[:store] == true
+			# returns two ActiveMerchant::Billing::Response objects (as an Array) when options[:store] == true
 			def purchase(money, creditcard_or_card_id, options = {})
 				post = {}
 				add_invoice(post, options)
 				add_payment_source(post, creditcard_or_card_id, options)        
-				add_address(post, options)   
-				commit('D', money, post)
+				add_address(post, options)
+				purchase_result = commit('D', money, post)
+
+				unless options.has_key? :store
+					options[:store] = false
+				end
+
+				if options[:store]
+					return purchase_result, store(creditcard_or_card_id, options)
+				else
+					return purchase_result
+				end
 			end                       
     
 			def capture(money, transaction_id, options = {})
