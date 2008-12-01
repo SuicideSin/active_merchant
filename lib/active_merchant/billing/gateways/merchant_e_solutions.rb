@@ -28,7 +28,17 @@ module ActiveMerchant #:nodoc:
 				add_invoice(post, options)
 				add_payment_source(post, creditcard_or_card_id, options)        
 				add_address(post, options)        
-				commit('P', money, post)
+				authorize_result = commit('P', money, post)
+
+				unless options.has_key? :store
+					options[:store] = false
+				end
+				
+				if options[:store]
+				  return [authorize_result, store(creditcard_or_card_id, options)]
+				else
+				  return authorize_result
+				end
 			end
 
 			# returns a single ActiveMerchant::Billing::Response object unless options[:store] == true

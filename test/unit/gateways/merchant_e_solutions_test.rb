@@ -48,6 +48,12 @@ class MerchantESolutionsTest < Test::Unit::TestCase
     assert_equal '42e52603e4c83a55890fbbcfb92b8de1', response.authorization
     assert response.test?
   end
+  
+  def test_authorization_with_store
+    @gateway.expects(:authorize).returns(successful_authorization_with_store_response)
+    assert response = @gateway.authorize(@amount, @credit_card, @options.merge({:store => true}))
+    assert_instance_of Array, response
+  end  
 
 	def test_capture
 		@gateway.expects(:ssl_post).returns(successful_capture_response)
@@ -152,6 +158,11 @@ class MerchantESolutionsTest < Test::Unit::TestCase
 	def successful_authorization_response
 		'transaction_id=42e52603e4c83a55890fbbcfb92b8de1&error_code=000&auth_response_text=Exact Match&auth_code=12345A'
 	end
+	
+	def successful_authorization_with_store_response
+		[ 'transaction_id=42e52603e4c83a55890fbbcfb92b8de1&error_code=000&auth_response_text=Exact Match&auth_code=12345A',
+		  'transaction_id=ae641b57b19b3bb89faab44191479872&error_code=000&auth_response_text=Card Data Stored']
+	end	
 
 	def successful_credit_response
 		'transaction_id=0a5ca4662ac034a59595acb61e8da025&error_code=000&auth_response_text=Credit Approved'
